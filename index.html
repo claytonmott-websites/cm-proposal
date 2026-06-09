@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>An AI-Augmented Marketing Operator for Ecentric | Clayton Mott</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,300..700;1,500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --ecx-navy:#004B72; --ecx-midnight:#101F31; --ecx-cyan:#2CB2E1; --ecx-white:#fff;
+  --ecx-steel:#4B85B3; --ecx-teal:#05B9AB; --ecx-lime:#9ECA3D;
+  --ecx-grey-1:#F9F9F9; --ecx-grey-2:#EFF0F2; --ecx-grey-3:#D3D6D9; --ecx-grey-4:#A8ADB4; --ecx-grey-5:#6E7886; --ecx-grey-6:#50565E;
+  --ecx-grad-brand:linear-gradient(135deg,#05B9AB 0%,#2CB2E1 50%,#4B85B3 100%);
+  --ecx-grad-navy:linear-gradient(135deg,#004B72,#2D6A92);
+  --ecx-grad-teal:linear-gradient(135deg,#05B9AB,#2CB2E1);
+  --ecx-grad-lime:linear-gradient(135deg,#9ECA3D,#C4E97B);
+  --ecx-radius-sm:8px; --ecx-radius:16px; --ecx-radius-lg:24px; --ecx-radius-pill:999px;
+  --ecx-shadow:0 8px 24px -8px rgba(0,75,114,.18);
+  --ecx-shadow-lg:0 24px 48px -16px rgba(0,75,114,.28);
+  --font:"Red Hat Display","Century Gothic","Avenir Next",system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);color:var(--ecx-navy);background:var(--ecx-grey-1);line-height:1.6;overflow-x:hidden}
+::selection{background:var(--ecx-cyan);color:#fff}
+
+/* progress bar */
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--ecx-grad-teal);z-index:200;transition:width .1s linear}
+
+/* side dot nav */
+#dots{position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:150;display:flex;flex-direction:column;gap:14px}
+#dots a{width:10px;height:10px;border-radius:50%;background:var(--ecx-grey-3);transition:.3s;position:relative}
+#dots a.active{background:var(--ecx-cyan);transform:scale(1.4)}
+#dots a:hover::after{content:attr(data-label);position:absolute;right:20px;top:50%;transform:translateY(-50%);white-space:nowrap;background:var(--ecx-midnight);color:#fff;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:var(--ecx-radius-pill)}
+@media(max-width:900px){#dots{display:none}}
+
+section{position:relative;padding:120px 80px;overflow:hidden}
+@media(max-width:900px){section{padding:80px 24px}}
+.wrap{max-width:1280px;margin:0 auto;position:relative;z-index:2}
+.reading{max-width:760px}
+
+/* eyebrow with // divider */
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ecx-cyan);margin-bottom:24px;display:flex;align-items:center;gap:10px}
+.eyebrow .slash{color:var(--ecx-cyan);opacity:.7}
+.dark .eyebrow{color:var(--ecx-cyan)}
+
+/* giant section numeral */
+.bignum{position:absolute;font-size:clamp(180px,28vw,420px);font-weight:700;line-height:.8;color:currentColor;opacity:.05;top:40px;left:40px;z-index:1;pointer-events:none;user-select:none}
+
+h1,h2,h3{font-weight:700;letter-spacing:-.01em;line-height:1.08}
+h1{font-size:clamp(40px,6vw,72px)}
+h2{font-size:clamp(30px,4.4vw,48px);margin-bottom:24px}
+h3{font-size:24px;font-weight:600;letter-spacing:0}
+.lead{font-size:clamp(18px,2.2vw,20px);line-height:1.7;color:var(--ecx-cyan);font-weight:400;margin:20px 0}
+.dark{background:var(--ecx-midnight);color:#fff}
+.dark h1,.dark h2,.dark h3{color:#fff}
+.dark .muted{color:#A8ADB4}
+.muted{color:var(--ecx-grey-5)}
+.bold-accent{font-weight:700}
+p{margin-bottom:16px;font-size:16px}
+.dark p{color:#cfd6dd}
+
+/* concentric circles motif */
+.circles{position:absolute;border-radius:50%;border:1.5px solid currentColor;opacity:.12;pointer-events:none}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--font);font-weight:600;letter-spacing:.04em;font-size:15px;padding:16px 32px;border-radius:var(--ecx-radius-pill);border:none;cursor:pointer;text-decoration:none;transition:.25s}
+.btn-primary{background:var(--ecx-grad-lime);color:var(--ecx-midnight)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px -8px rgba(158,202,61,.6)}
+.btn-ghost{background:transparent;border:1.5px solid rgba(255,255,255,.4);color:#fff}
+.btn-ghost:hover{border-color:#fff;background:rgba(255,255,255,.08)}
+.btn-navy{background:var(--ecx-navy);color:#fff}
+.btn-navy:hover{transform:translateY(-2px);box-shadow:var(--ecx-shadow)}
+
+/* cards */
+.grid{display:grid;gap:24px}
+.cols-2{grid-template-columns:repeat(2,1fr)}
+.cols-3{grid-template-columns:repeat(3,1fr)}
+.cols-4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.cols-2,.cols-3,.cols-4{grid-template-columns:1fr}}
+.card{background:#fff;border-radius:var(--ecx-radius);padding:32px;box-shadow:var(--ecx-shadow);position:relative;overflow:hidden}
+.card .kicker{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ecx-cyan);margin-bottom:12px}
+.card h3{margin-bottom:10px;color:var(--ecx-navy)}
+.card p{font-size:15px;color:var(--ecx-grey-6)}
+.card.dark-card{background:var(--ecx-grad-navy);color:#fff}
+.card.dark-card h3,.card.dark-card p{color:#fff}
+.card.feature{background:var(--ecx-grad-brand);color:#fff}
+.card.feature h3,.card.feature p{color:#fff}
+
+/* stat blocks */
+.stat{display:flex;flex-direction:column;gap:4px}
+.stat .num{font-size:clamp(40px,6vw,64px);font-weight:700;line-height:1;background:var(--ecx-grad-teal);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.dark .stat .label,.stat .label{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--ecx-grey-4);font-weight:600;margin-top:8px}
+
+/* pills */
+.pill{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 14px;border-radius:var(--ecx-radius-pill);margin:3px}
+.pill-cyan{background:rgba(44,178,225,.16);color:var(--ecx-cyan)}
+.pill-teal{background:rgba(5,185,171,.16);color:var(--ecx-teal)}
+.pill-lime{background:rgba(158,202,61,.24);color:var(--ecx-midnight)}
+.pill-ghost{background:rgba(255,255,255,.08);color:#cfd6dd;border:1px solid rgba(255,255,255,.18)}
+
+/* timeline */
+.phase{background:#fff;border-radius:var(--ecx-radius);padding:32px;box-shadow:var(--ecx-shadow);border-top:4px solid var(--ecx-cyan)}
+.phase:nth-child(2){border-top-color:var(--ecx-teal)}
+.phase:nth-child(3){border-top-color:var(--ecx-lime)}
+.phase .days{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ecx-grey-5);margin-bottom:8px}
+.phase ul{list-style:none;margin-top:16px}
+.phase li{padding-left:24px;position:relative;margin-bottom:10px;font-size:15px;color:var(--ecx-grey-6)}
+.phase li::before{content:"//";position:absolute;left:0;color:var(--ecx-cyan);font-weight:700}
+
+/* chart shell */
+.chart-shell{background:#fff;border-radius:var(--ecx-radius);padding:32px;box-shadow:var(--ecx-shadow)}
+.dark .chart-shell{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)}
+.chart-box{position:relative;height:320px}
+
+/* placeholder marker */
+.ph{outline:2px dashed var(--ecx-lime);outline-offset:4px;border-radius:6px;background:rgba(158,202,61,.08)}
+.ph-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6f8f1f;background:rgba(158,202,61,.2);padding:3px 10px;border-radius:var(--ecx-radius-pill);margin-bottom:10px}
+
+/* work strip */
+.work-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:24px}
+@media(max-width:900px){.work-strip{grid-template-columns:repeat(2,1fr)}}
+.work-thumb{border-radius:var(--ecx-radius);overflow:hidden;box-shadow:var(--ecx-shadow);aspect-ratio:16/9;background:var(--ecx-grey-2)}
+.work-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s cubic-bezier(.16,1,.3,1)}
+.work-thumb:hover img{transform:scale(1.05)}
+.scope-list{list-style:none;margin-top:16px}
+.scope-list li{padding-left:30px;position:relative;margin-bottom:12px;font-size:15px;color:var(--ecx-grey-6)}
+.scope-list.no li::before{content:"\2715";position:absolute;left:0;top:1px;color:var(--ecx-grey-4);font-weight:700}
+.scope-list.yes li::before{content:"\2713";position:absolute;left:0;top:1px;color:var(--ecx-teal);font-weight:700}
+
+/* device / window mockups */
+.mock{border-radius:12px;overflow:hidden;box-shadow:var(--ecx-shadow-lg);background:#0b1422;border:1px solid rgba(255,255,255,.08)}
+.mock-bar{display:flex;align-items:center;gap:7px;padding:11px 16px;background:#0e1a2b}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}
+.mock-bar .t{margin-left:10px;font-size:12px;color:#7d8794;letter-spacing:.04em}
+.term{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:13.5px;line-height:1.85;padding:22px 22px 26px;color:#cfd6dd}
+.term>div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.term .pfx{color:var(--ecx-cyan);font-weight:700}
+.term .cmd{color:#fff}
+.term .ok{color:var(--ecx-teal);font-weight:700}
+.term .mut{color:#6E7886}
+.cur{display:inline-block;width:8px;height:15px;background:var(--ecx-lime);vertical-align:-2px;margin-left:3px;animation:blink 1.1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.docmock{background:#fff;border-radius:12px;overflow:hidden;box-shadow:var(--ecx-shadow-lg);border:1px solid var(--ecx-grey-3)}
+.bar-line{height:9px;border-radius:4px;background:var(--ecx-grey-3)}
+@media(max-width:900px){.term>div{white-space:normal}}
+
+/* reveal animation */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}.reveal.d4{transition-delay:.32s}
+
+/* hero */
+#hero{min-height:100vh;display:flex;align-items:center;background:var(--ecx-midnight);background:linear-gradient(140deg,#0a1622 0%,#101F31 45%,#003a5a 100%)}
+#hero .logo{width:200px;margin-bottom:48px}
+#hero .logo svg{width:100%;height:auto}
+.built-note{margin-top:48px;font-size:13px;color:#7d8794;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.built-note b{color:var(--ecx-teal)}
+
+footer{background:var(--ecx-midnight);color:#7d8794;padding:48px 80px;text-align:center;font-size:13px;letter-spacing:.04em}
+footer .slash{color:var(--ecx-cyan)}
+.divider-line{height:1px;background:linear-gradient(90deg,transparent,var(--ecx-grey-3),transparent);margin:0}
+.hl{color:var(--ecx-cyan);font-weight:700}
+.dark .hl{color:var(--ecx-cyan)}
+.tagline{font-style:italic;font-weight:500;color:var(--ecx-teal)}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<nav id="dots">
+  <a href="#hero" data-label="Open" class="active"></a>
+  <a href="#shift" data-label="The Shift"></a>
+  <a href="#cost" data-label="The Gap"></a>
+  <a href="#foundation" data-label="In Practice"></a>
+  <a href="#opportunity" data-label="The Opportunity"></a>
+  <a href="#workforce" data-label="AI Workforce"></a>
+  <a href="#proof" data-label="The Proof"></a>
+  <a href="#whoami" data-label="Who I Am"></a>
+  <a href="#model" data-label="The Model"></a>
+  <a href="#ask" data-label="The Ask"></a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="circles" style="width:680px;height:680px;color:#2CB2E1;top:-200px;right:-180px"></div>
+  <div class="circles" style="width:420px;height:420px;color:#05B9AB;top:-80px;right:-40px"></div>
+  <div class="circles" style="width:520px;height:520px;color:#4B85B3;bottom:-260px;left:-200px"></div>
+  <div class="wrap">
+    <div class="logo reveal in">
+      <!-- Ecentric white logo (official asset, inlined) -->
+      <svg viewBox="0 0 651 197.72" xmlns="http://www.w3.org/2000/svg" aria-label="Ecentric Payment Systems"><g fill="#fff"><path d="M87.11,118.77a59.31,59.31,0,0,1-17.48,10.11,59.07,59.07,0,0,1-20,3.2,50.19,50.19,0,0,1-19.6-3.72,49.74,49.74,0,0,1-15.79-10.12A46.51,46.51,0,0,1,3.81,103.06,47.09,47.09,0,0,1,0,84.15,48,48,0,0,1,3.64,65.42a47.06,47.06,0,0,1,43.9-29.21A43.31,43.31,0,0,1,65.73,40,45.05,45.05,0,0,1,80.27,50.42a47.37,47.37,0,0,1,9.58,15.72,55.36,55.36,0,0,1,3.46,19.79v6.39H24.48a26,26,0,0,0,9.58,14,27,27,0,0,0,16.67,5.33,32.79,32.79,0,0,0,11.36-2,25.81,25.81,0,0,0,9-5.51ZM47,56.27a21.6,21.6,0,0,0-14.37,5.06,26,26,0,0,0-8.33,13.58H69.55A26.81,26.81,0,0,0,61.13,61.5,21.09,21.09,0,0,0,47,56.27Z"/><path d="M149.71,111a27.32,27.32,0,0,0,11.62-2.49,33.46,33.46,0,0,0,10.38-7.81l14.55,15.09a49.92,49.92,0,0,1-17,12.17,51,51,0,0,1-20.58,4.35,49.26,49.26,0,0,1-34.51-13.85,46.84,46.84,0,0,1-10.2-15.18,49.9,49.9,0,0,1,0-37.81,46.67,46.67,0,0,1,25.64-25.48,49,49,0,0,1,19.07-3.73,52.88,52.88,0,0,1,21.11,4.35A49.21,49.21,0,0,1,187,52.73L172.06,68.54a36,36,0,0,0-10.64-8.35,27,27,0,0,0-12.24-2.84,23.06,23.06,0,0,0-17.66,7.82,27.33,27.33,0,0,0-7.18,19.18,26.3,26.3,0,0,0,7.36,19A24.17,24.17,0,0,0,149.71,111Z"/><path d="M281.15,118.77a55.55,55.55,0,0,1-37.43,13.31,50.92,50.92,0,0,1-35.39-13.84,46.51,46.51,0,0,1-10.47-15.18,47.09,47.09,0,0,1-3.81-18.91,48.14,48.14,0,0,1,3.63-18.73,47.08,47.08,0,0,1,43.9-29.21A43.25,43.25,0,0,1,259.77,40a44.84,44.84,0,0,1,14.54,10.39,47,47,0,0,1,9.58,15.72,55.36,55.36,0,0,1,3.47,19.79v6.39H218.52a26,26,0,0,0,9.58,14,27,27,0,0,0,16.68,5.33,32.79,32.79,0,0,0,11.36-2,25.9,25.9,0,0,0,9-5.51Zm-40.09-62.5a21.57,21.57,0,0,0-14.36,5.06,26.08,26.08,0,0,0-8.34,13.58H263.6a26.88,26.88,0,0,0-8.42-13.41A21.1,21.1,0,0,0,241.06,56.27Z"/><path d="M293.92,131.8V36.21h24.3v9.07A38.52,38.52,0,0,1,330,38.53a41.67,41.67,0,0,1,14.1-2.32q16,0,26.26,10.31T380.67,73V131.8H356.36V76.53q0-8.7-5.23-14T337.2,57.17a24.33,24.33,0,0,0-10.9,2.4,21.35,21.35,0,0,0-8.07,6.84V131.8Z"/><path d="M406.38,104.28v-46h-19V35.79h19v-24l24.3-5.5V35.79h26.25v22.5H430.68v41q0,6.57,2.83,9.23c1.9,1.77,5.2,2.66,9.94,2.66a41.94,41.94,0,0,0,6.38-.45,35.22,35.22,0,0,0,6.56-1.68V129a59.19,59.19,0,0,1-9.41,2,65.77,65.77,0,0,1-9.4.8q-15.43,0-23.32-7T406.38,104.28Z"/><path d="M464,130V35.79h24.3V47.62a29.42,29.42,0,0,1,10.74-9.15A31,31,0,0,1,513,35.37a47.55,47.55,0,0,1,6,.62,12.27,12.27,0,0,1,4.17,1.52v21.3A25.62,25.62,0,0,0,517.25,57a33.71,33.71,0,0,0-6.56-.62,24.93,24.93,0,0,0-13,3.55,24.34,24.34,0,0,0-9.32,10.3V131.8H464Z"/><path d="M543.57,27.71a13.28,13.28,0,0,1-9.76-4.09,13.31,13.31,0,0,1-4.09-9.77,13.28,13.28,0,0,1,4.09-9.76,13.68,13.68,0,0,1,19.51,0,13.34,13.34,0,0,1,4.09,9.76,13.31,13.31,0,0,1-4.09,9.77A13.29,13.29,0,0,1,543.57,27.71Zm12.24,8.08v96h-24.3v-96Z"/><path d="M613.75,110.85a27.27,27.27,0,0,0,11.61-2.49,33.34,33.34,0,0,0,10.38-7.81l14.55,15.09a49.72,49.72,0,0,1-17,12.17,50.94,50.94,0,0,1-20.58,4.35,49.21,49.21,0,0,1-34.5-13.85A46.71,46.71,0,0,1,568,103.13a49.92,49.92,0,0,1,0-37.82A47.75,47.75,0,0,1,578.18,50a47,47,0,0,1,15.43-10.2,49,49,0,0,1,19.07-3.73,52.88,52.88,0,0,1,21.11,4.35A49.21,49.21,0,0,1,651,52.63l-14.9,15.8a36.32,36.32,0,0,0-10.65-8.34,26.89,26.89,0,0,0-12.24-2.84,23,23,0,0,0-17.65,7.82,27.27,27.27,0,0,0-7.18,19.18,26.29,26.29,0,0,0,7.35,19A24.13,24.13,0,0,0,613.75,110.85Z"/></g></svg>
+    </div>
+    <div class="eyebrow reveal in d1">A proposal for Ecentric <span class="slash">//</span> June 2026</div>
+    <h1 class="reveal in d1" style="color:#fff;max-width:980px">The next edge in payments won't be a new product.<br>It will be how fast your teams can think, create and ship.</h1>
+    <p class="lead reveal in d2" style="max-width:720px">I'm <b style="color:#fff">Clayton Mott</b>. I already work inside your marketing, week after week. Here is the case for doing far more, together, with AI as the multiplier.</p>
+    <div class="reveal in d3" style="margin-top:32px;display:flex;gap:16px;flex-wrap:wrap">
+      <a href="#shift" class="btn btn-primary">See the case &darr;</a>
+      <a href="#ask" class="btn btn-ghost">Skip to the ask</a>
+    </div>
+    <div class="built-note reveal in d4">
+      <span>This page was designed and built in roughly <b>one working day</b>, in your brand, using AI.</span>
+      <span style="color:var(--ecx-lime)">Proof, not a promise.</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider-line"></div>
+
+<!-- 01 THE SHIFT -->
+<section id="shift">
+  <div class="bignum" style="color:var(--ecx-navy)">01</div>
+  <div class="wrap">
+    <div class="eyebrow reveal">The shift <span class="slash">//</span> why this moment</div>
+    <h2 class="reveal d1 reading">AI just reset the economics of marketing and operations.</h2>
+    <p class="lead reveal d1 reading">The work that used to need a studio and a week now takes one skilled operator an afternoon. The advantage goes to whoever adopts first.</p>
+    <div class="grid cols-3" style="margin-top:48px">
+      <div class="card reveal d1">
+        <div class="kicker">The old way</div>
+        <h3>Slow and fragmented</h3>
+        <p>Briefs queue. Suppliers juggle. A single social set, a deck or a campaign takes days and several hands to move.</p>
+      </div>
+      <div class="card reveal d2">
+        <div class="kicker">The new way</div>
+        <h3>Fast and consolidated</h3>
+        <p>One operator with AE-grade AI tooling turns the same work around in hours, on-brand, end to end.</p>
+      </div>
+      <div class="card feature reveal d3">
+        <div class="kicker" style="color:#cdebff">The window</div>
+        <h3>It is open now</h3>
+        <p>The teams who build this capability in 2026 set the pace. The capability that gives it to you is already on your books, billed by the hour.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 THE GAP -->
+<section id="cost" class="dark">
+  <div class="circles" style="width:600px;height:600px;color:#2CB2E1;bottom:-280px;right:-220px"></div>
+  <div class="bignum" style="color:#fff">02</div>
+  <div class="wrap">
+    <div class="eyebrow reveal">The opportunity <span class="slash">//</span> the gap you are not closing</div>
+    <h2 class="reveal d1 reading">Today your marketing moves one ticket at a time. The strategy waits.</h2>
+    <p class="lead reveal d1 reading">Every brief gets handled well. But handling briefs is not a marketing engine. The proactive, strategic, always-on work, the part that compounds, has no owner. That is the real gap, and it widens every month.</p>
+
+    <div class="grid cols-4" style="margin-top:56px">
+      <div class="card reveal d1"><div class="kicker">01</div><h3>Reactive by default</h3><p>Work begins with a brief and a deadline, never with a plan. You receive assets, not momentum.</p></div>
+      <div class="card reveal d2"><div class="kicker">02</div><h3>No one owns the engine</h3><p>Campaigns, content cadence, the always-on presence that builds a brand, fall between roles and get squeezed out.</p></div>
+      <div class="card reveal d3"><div class="kicker">03</div><h3>AI on the sidelines</h3><p>The biggest efficiency shift in a decade, and it is not yet wired into how your marketing actually runs day to day.</p></div>
+      <div class="card reveal d4"><div class="kicker">04</div><h3>The cost is invisible</h3><p>It never lands on an invoice. It shows up as the growth, the speed and the ideas you simply never get to see.</p></div>
+    </div>
+
+    <p class="reveal d1" style="margin-top:48px;font-size:clamp(20px,2.6vw,24px);font-weight:600;color:#fff;max-width:840px">Closing this gap does not need another agency or more headcount. It needs one person to own it, with AI behind them.</p>
+  </div>
+</section>
+
+<!-- 03 IN PRACTICE -->
+<section id="foundation">
+  <div class="bignum" style="color:var(--ecx-navy)">03</div>
+  <div class="wrap">
+    <div class="eyebrow reveal">In practice <span class="slash">//</span> what becomes possible</div>
+    <h2 class="reveal d1 reading">This is not a bigger version of what I do now. It is a new capability for the whole company.</h2>
+    <p class="lead reveal d1 reading">We already work together, so trust is not the question. The real shift is what happens when AI is wired into how the work gets done, and marketing is simply where we prove it first.</p>
+    <p class="reveal d1 muted" style="max-width:840px">Think of it as an AI augmentation function. It starts in marketing, then the same agents, assistants and support extend across every department. Any role, with a tireless assistant behind it. Here is what that already looks like in the real world.</p>
+
+    <div class="grid cols-2" style="margin-top:56px;align-items:center;gap:40px">
+      <div class="mock reveal d1">
+        <div class="mock-bar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="t">claude code &nbsp;//&nbsp; ecentric</span></div>
+        <div class="term">
+          <div class="reveal" style="transition-delay:.1s"><span class="pfx">$</span> <span class="cmd">claude</span></div>
+          <div class="reveal" style="transition-delay:.35s"><span class="pfx">&gt;</span> <span class="cmd">Read brand/design-system.md and write a</span></div>
+          <div class="reveal" style="transition-delay:.45s"><span class="cmd">&nbsp;&nbsp;LinkedIn post for the 2026 Black Friday Index.</span></div>
+          <div class="reveal" style="transition-delay:.9s"><span class="ok">&#10003;</span> Loaded design-system.md <span class="mut">voice, tone, colours</span></div>
+          <div class="reveal" style="transition-delay:1.1s"><span class="ok">&#10003;</span> Matched Ecentric style <span class="mut">Simple. Safe. Seamless.</span></div>
+          <div class="reveal" style="transition-delay:1.3s"><span class="ok">&#10003;</span> On-brand draft ready <span class="mut">in 9 seconds</span><span class="cur"></span></div>
+        </div>
+      </div>
+      <div class="reveal d2">
+        <div class="eyebrow" style="margin-bottom:12px">Brand files in <span class="slash">//</span> on-brand content out</div>
+        <h3 style="color:var(--ecx-navy);margin-bottom:12px">It reads your brand. It does not guess.</h3>
+        <p class="muted">I point Claude Code at your real files, the design system, past copy, product information, and it produces finished, on-brand content in seconds. Nothing generic, because it is working from your brand, not a template.</p>
+        <div style="margin-top:16px">
+          <span class="pill pill-teal">Seconds, not days</span>
+          <span class="pill pill-cyan">Always on brand</span>
+          <span class="pill pill-cyan">Your voice, every time</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid cols-2" style="margin-top:40px;align-items:center;gap:40px">
+      <div class="reveal d1" style="order:2">
+        <div class="eyebrow" style="margin-bottom:12px">Research in <span class="slash">//</span> a finished proposal out</div>
+        <h3 style="color:var(--ecx-navy);margin-bottom:12px">A full proposal, backed by real research.</h3>
+        <p class="muted">Need a client proposal or a market analysis? I run the research, structure the argument and produce a finished, on-brand document with the data to support it. Hours, not weeks, and ready to send.</p>
+        <div style="margin-top:16px">
+          <span class="pill pill-teal">Market research built in</span>
+          <span class="pill pill-cyan">Decision-ready</span>
+        </div>
+      </div>
+      <div class="docmock reveal d2" style="order:1">
+        <div style="display:flex;align-items:center;gap:7px;padding:11px 16px;background:var(--ecx-grey-2);border-bottom:1px solid var(--ecx-grey-3)">
+          <span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span>
+          <span style="margin-left:10px;font-size:12px;color:var(--ecx-grey-5)">Ecentric_Proposal.pdf &nbsp;//&nbsp; generated in 2 hours</span>
+        </div>
+        <div style="padding:26px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ecx-cyan);margin-bottom:8px">Market research <span class="slash">//</span> Africa payments</div>
+          <div style="font-size:20px;font-weight:700;color:var(--ecx-navy);margin-bottom:18px">Proposal: Retail PSP Expansion</div>
+          <div style="display:flex;gap:10px;margin-bottom:20px">
+            <div style="flex:1;background:var(--ecx-grey-1);border-radius:10px;padding:12px"><div style="font-size:20px;font-weight:700;color:var(--ecx-teal)">R10tn+</div><div style="font-size:11px;color:var(--ecx-grey-5)">processed</div></div>
+            <div style="flex:1;background:var(--ecx-grey-1);border-radius:10px;padding:12px"><div style="font-size:20px;font-weight:700;color:var(--ecx-teal)">90k+</div><div style="font-size:11px;color:var(--ecx-grey-5)">tills</div></div>
+            <div style="flex:1;background:var(--ecx-grey-1);border-radius:10px;padding:12px"><div style="font-size:20px;font-weight:700;color:var(--ecx-teal)">12bn+</div><div style="font-size:11px;color:var(--ecx-grey-5)">txns</div></div>
+          </div>
+          <div class="bar-line" style="width:92%;margin-bottom:10px"></div>
+          <div class="bar-line" style="width:84%;margin-bottom:10px"></div>
+          <div class="bar-line" style="width:88%;margin-bottom:10px;background:var(--ecx-grey-2)"></div>
+          <div class="bar-line" style="width:64%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 THE OPPORTUNITY -->
+<section id="opportunity" class="dark">
+  <div class="circles" style="width:520px;height:520px;color:#05B9AB;top:-200px;left:-160px"></div>
+  <div class="bignum" style="color:#fff">04</div>
+  <div class="wrap">
+    <div class="eyebrow reveal">The opportunity <span class="slash">//</span> the bigger idea</div>
+    <h2 class="reveal d1 reading">Stop buying design tickets. Start running an AI-augmented marketing operator.</h2>
+    <p class="lead reveal d1 reading">Not a longer to-do list. A wider remit, full-stack skills, and AI tooling that multiplies the output of one into the throughput of a small team.</p>
+    <div class="grid cols-4" style="margin-top:48px">
+      <div class="card dark-card reveal d1"><h3>Design &amp; brand</h3><p>Everything I do now, faster and deeper, with brand consistency held by system not by chance.</p></div>
+      <div class="card dark-card reveal d2"><h3>Content &amp; social</h3><p>Always-on social, blogs, LinkedIn and campaign copy produced at AI speed, on your voice.</p></div>
+      <div class="card dark-card reveal d3"><h3>Web &amp; digital</h3><p>Landing pages, microsites and interactive pieces like this one, built and shipped in-house.</p></div>
+      <div class="card dark-card reveal d4"><h3>AI &amp; automation</h3><p>Repeatable workflows that turn a brief into finished assets, reports and decks in a fraction of the time.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 AI WORKFORCE -->
+<section id="workforce">
+  <div class="bignum" style="color:var(--ecx-navy)">05</div>
+  <div class="wrap">
+    <div class="eyebrow reveal">The AI workforce <span class="slash">//</span> marketing first</div>
+    <h2 class="reveal d1 reading">An AI workforce that complements your team, not one that replaces it.</h2>
+    <p class="lead reveal d1 reading">The headlines say AI is coming for everyone's job. Used properly, the opposite is true. AI is a tool, an exceptional one, that supports your people and multiplies what each of them can do. I build, train and run those assistants. In marketing, from day one, that looks like this.</p>
+
+    <div class="grid cols-3" style="margin-top:48px">
+      <div class="card reveal d1"><div class="kicker">Now</div><h3>Campaign engine</h3><p>Brief in, full social and email set out the same day, on brand, ready to schedule.</p></div>
+      <div class="card reveal d2"><div class="kicker">Now</div><h3>Content &amp; SEO engine</h3><p>Blog, LinkedIn and web copy produced consistently, search-aware, in the Ecentric voice.</p></div>
+      <div class="card reveal d3"><div class="kicker">Now</div><h3>Reporting &amp; decks</h3><p>Recurring pieces like the Black Friday Index and pitch decks generated, not hand-built from scratch.</p></div>
+    </div>
+
+    <p class="reveal d1" style="margin-top:48px;font-size:clamp(20px,2.6vw,24px);font-weight:600;color:var(--ecx-navy);max-width:880px">Same team. Same headcount. A multiple of the output. This does not threaten a single role, it makes every one of them go further. That is the proposition that is hard to ignore.</p>
+
+    <div class="reveal d1" style="margin-top:48px;padding:40px;border-radius:var(--ecx-radius-lg);background:var(--ecx-grad-brand);color:#fff;position:relative;overflow:hidden">
+      <div class="circles" style="width:380px;height:380px;color:#fff;bottom:-200px;right:-120px"></div>
+      <div style="position:relative;z-index:2">
+        <span class="pill pill-lime">Phase two</span>
+        <h3 style="color:#fff;margin:16px 0 8px;font-size:28px">Then it becomes a function of its own.</h3>
+        <p style="max-width:760px;color:#eef9ff">Proven in marketing, the same approach becomes an AI augmentation capability the whole company can draw on. Sales enablement and proposals. Support knowledge and documentation. SOPs and onboarding. Any role, with an AI assistant behind it. I prove it in marketing, then we scale it across the business.</p>
+        <div style="margin-top:18px">
+          <span class="pill pill-ghost" style="color:#fff">Sales enablement</span>
+          <span class="pill pill-ghost" style="color:#fff">Support knowledge</span>
+          <span class="pill pill-ghost" style="color:#fff">Internal docs &amp; SOPs</span>
+          <span class="pill pill-ghost" style="color:#fff">Onboarding</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 THE PROOF -->
+<section id="proof" class="dark">
+  <div class="circles" style="width:560px;height:560px;color:#2CB2E1;top:-240px;right:-160px"></div>
+  <div class="bignum" style="color:#fff">06</div>
+  <div class="wrap">
+    <div class="eyebrow reveal">The proof <span class="slash">//</span> this page is the demo</div>
+    <h2 class="reveal d1 reading">Do not take the speed on faith. You are reading it.</h2>
+    <p class="lead reveal d1 reading">This proposal is a custom, animated, on-brand web page with live charts. It was built in about one working day. The traditional route would take a designer and a developer the better part of a week.</p>
+    <div class="grid cols-2" style="margin-top:48px;align-items:center">
+      <div class="chart-shell reveal d1">
+        <div class="kicker" style="font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ecx-cyan);margin-bottom:16px">Turnaround, illustrative</div>
+        <div class="chart-box"><canvas id="speedChart"></canvas></div>
+      </div>
+      <div class="reveal d2">
+        <h3 style="margin-bottom:16px">Speed is a strategy, not a nicety.</h3>
+        <p style="color:#cfd6dd">When output is fast and cheap, you test more, ship more, and react to the market in real time. That is a compounding advantage in a category as competitive as payments.</p>
+        <p style="color:#cfd6dd">Imagine this turnaround on every campaign, every deck, every product moment, held in-house and always on brand.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 07 WHO I AM -->
+<section id="whoami">
+  <div class="bignum" style="color:var(--ecx-navy)">07</div>
+  <div class="wrap">
+    <div class="eyebrow reveal">Who I am <span class="slash">//</span> Clayton Mott</div>
+    <h2 class="reveal d1 reading">Creative strategist. AI-driven operator. Fluent in payments.</h2>
+    <p class="reveal d1" style="font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ecx-steel);margin-bottom:24px">Creative Strategist <span style="color:var(--ecx-cyan)">//</span> AI-Driven Digital Operator <span style="color:var(--ecx-cyan)">//</span> Web3 &amp; Payments-Focused</p>
+    <div class="reading reveal d1">
+      <p class="lead">I move between design, web, marketing, client communication and AI production, always with an instinct for what is commercially useful, not just visually good.</p>
+      <p class="muted">Years in and around the payments world, much of it through my work with FORUS, mean I already understand digital payments, wallets, merchant ecosystems, tokenisation and onboarding, and the real challenge underneath all of it: making complex technology clear to the people who use it.</p>
+    </div>
+    <div class="reveal d2" style="margin:32px 0 8px;padding:24px 28px;border-left:4px solid var(--ecx-lime);background:var(--ecx-grey-2);border-radius:0 var(--ecx-radius) var(--ecx-radius) 0;max-width:760px">
+      <p style="margin:0;font-size:clamp(20px,2.6vw,24px);font-weight:600;color:var(--ecx-navy)">I don't need to learn your industry. I already speak payments.</p>
+    </div>
+
+    <div class="grid cols-4" style="margin-top:48px">
+      <div class="card reveal d1"><div class="kicker">01</div><h3>AI-enabled execution</h3><p>I use AI across content, design, video, web prototyping, strategy and automation. The skill is not knowing the tools, it is directing them, refining the output and wiring them into real workflows.</p></div>
+      <div class="card reveal d2"><div class="kicker">02</div><h3>Payments &amp; Web3 fluency</h3><p>Wallets, merchants, members, tokenised systems, app ecosystems and platform growth. I turn technical, emerging products into clear, market-ready communication.</p></div>
+      <div class="card reveal d3"><div class="kicker">03</div><h3>Creative direction</h3><p>I shape the look, feel and message of a brand, then carry that direction across web, social, video, presentations and advertising.</p></div>
+      <div class="card reveal d4"><div class="kicker">04</div><h3>Commercial strategy</h3><p>I think past design to the business goal: building trust, explaining a product, driving adoption, generating leads and supporting sales.</p></div>
+    </div>
+
+    <div class="reveal d1" style="margin-top:48px">
+      <h3 style="margin-bottom:20px;color:var(--ecx-navy)">Key capabilities</h3>
+      <div>
+        <span class="pill pill-lime">AI-assisted production</span>
+        <span class="pill pill-lime">AI prompting for design, video &amp; strategy</span>
+        <span class="pill pill-lime">AI workflow automation</span>
+        <span class="pill pill-cyan">Brand positioning</span>
+        <span class="pill pill-cyan">Campaign direction</span>
+        <span class="pill pill-cyan">Web &amp; landing page strategy</span>
+        <span class="pill pill-cyan">Video scripting &amp; direction</span>
+        <span class="pill pill-cyan">Social &amp; paid creative direction</span>
+        <span class="pill pill-teal">Payments &amp; Web3 communication</span>
+        <span class="pill pill-teal">Commercial messaging for technical products</span>
+        <span class="pill pill-teal">Lead-generation thinking</span>
+        <span class="pill pill-teal">Proposal development</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 THE MODEL -->
+<section id="model" class="dark">
+  <div class="circles" style="width:520px;height:520px;color:#05B9AB;bottom:-220px;left:-160px"></div>
+  <div class="bignum" style="color:#fff">08</div>
+  <div class="wrap">
+    <div class="eyebrow reveal">The model <span class="slash">//</span> how this works</div>
+    <h2 class="reveal d1 reading">A salaried role, structured to be the easy yes.</h2>
+    <p class="lead reveal d1 reading">Half-time or full-time. Remote, in the office whenever it matters. And if you want certainty first, we start with a trial.</p>
+
+    <div class="grid cols-3" style="margin-top:48px">
+      <div class="phase reveal d1">
+        <div class="days">Days 1 to 30 // Embed</div>
+        <h3 style="color:var(--ecx-navy)">Land and deliver</h3>
+        <ul>
+          <li>Take over the live marketing queue end to end</li>
+          <li>Map every recurring brief and asset</li>
+          <li>Stand up the first AI workflows</li>
+          <li>Quick wins Mia and Kirsten feel immediately</li>
+        </ul>
+      </div>
+      <div class="phase reveal d2">
+        <div class="days">Days 31 to 60 // Systemise</div>
+        <h3 style="color:var(--ecx-navy)">Build the engine</h3>
+        <ul>
+          <li>On-brand AI templates for social, decks, reports</li>
+          <li>Automate the repeatable, recurring work</li>
+          <li>Faster turnaround, measured against today</li>
+          <li>Proven, repeatable output you can rely on</li>
+        </ul>
+      </div>
+      <div class="phase reveal d3">
+        <div class="days">Days 61 to 90 // Scale</div>
+        <h3 style="color:var(--ecx-navy)">Prove and extend</h3>
+        <ul>
+          <li>Report the time and cost saved</li>
+          <li>Open the first conversation beyond marketing</li>
+          <li>Agree the shape of the permanent role</li>
+          <li>A clear, evidenced case to continue</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="reveal d1" style="margin-top:48px;display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+      <span class="pill pill-cyan">Half or full-time</span>
+      <span class="pill pill-cyan">Remote first</span>
+      <span class="pill pill-cyan">In office when needed</span>
+      <span class="pill pill-teal">Trial-friendly start</span>
+    </div>
+  </div>
+</section>
+
+<!-- 09 THE ASK -->
+<section id="ask" class="dark">
+  <div class="circles" style="width:720px;height:720px;color:#2CB2E1;top:-260px;right:-200px"></div>
+  <div class="circles" style="width:460px;height:460px;color:#05B9AB;top:-120px;right:-60px"></div>
+  <div class="bignum" style="color:#fff">09</div>
+  <div class="wrap">
+    <div class="eyebrow reveal">The ask <span class="slash">//</span> let's start</div>
+    <h2 class="reveal d1" style="max-width:900px;font-size:clamp(32px,5vw,56px)">Give me thirty days. I will show you what an AI-augmented operator does to your output.</h2>
+    <p class="lead reveal d1" style="max-width:720px">No leap of faith required. Start with a trial, and let the results make the case for the permanent role.</p>
+    <div class="reveal d2" style="margin-top:40px;display:flex;gap:16px;flex-wrap:wrap">
+      <a href="mailto:claytonmott@gmail.com?subject=Let%27s%20talk%20about%20a%20trial" class="btn btn-primary">Let's talk about a trial</a>
+    </div>
+    <div class="reveal d2" style="margin-top:36px;display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start">
+      <div>
+        <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#7d8794;margin-bottom:6px">Email</div>
+        <a href="mailto:claytonmott@gmail.com" style="color:#fff;font-weight:600;text-decoration:none;font-size:18px">claytonmott@gmail.com</a>
+      </div>
+      <div>
+        <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#7d8794;margin-bottom:6px">Phone</div>
+        <a href="tel:+27825563817" style="color:#fff;font-weight:600;text-decoration:none;font-size:18px">082 556 3817</a>
+      </div>
+    </div>
+    <p class="reveal d3 muted" style="margin-top:28px;max-width:660px;font-size:15px">On the number, let's start with the value this creates and work back from there. I am confident it makes sense for both of us.</p>
+    <p class="reveal d3 tagline" style="margin-top:24px;font-size:20px">Simple. Safe. Seamless. The same goes for hiring me.</p>
+  </div>
+</section>
+
+<footer>
+  Clayton Mott <span class="slash">//</span> A proposal for Ecentric Payment Systems <span class="slash">//</span> June 2026<br>
+  <span style="opacity:.6">Designed and built in the Ecentric brand, using AI.</span>
+</footer>
+
+<script>
+// progress bar + active dot
+const dots=[...document.querySelectorAll('#dots a')];
+const sections=dots.map(d=>document.querySelector(d.getAttribute('href')));
+function onScroll(){
+  const st=window.scrollY,h=document.body.scrollHeight-window.innerHeight;
+  document.getElementById('progress').style.width=(st/h*100)+'%';
+  let idx=0;
+  sections.forEach((s,i)=>{if(s&&s.offsetTop-window.innerHeight*0.4<=st)idx=i});
+  dots.forEach((d,i)=>d.classList.toggle('active',i===idx));
+}
+window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+// reveal on scroll
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.18});
+document.querySelectorAll('.reveal:not(.in)').forEach(el=>io.observe(el));
+
+// charts
+const FONT="Red Hat Display";
+Chart.defaults.font.family=FONT;
+const navy='#004B72',cyan='#2CB2E1',teal='#05B9AB',steel='#4B85B3',lime='#9ECA3D',mid='#101F31',grey='#A8ADB4';
+
+new Chart(document.getElementById('speedChart'),{
+  type:'bar',
+  data:{labels:['This page','Social campaign','Pitch deck'],
+    datasets:[
+      {label:'Traditional route (days)',data:[5,3,4],backgroundColor:grey,borderRadius:8,barThickness:26},
+      {label:'AI-augmented (days)',data:[1,0.5,0.5],backgroundColor:lime,borderRadius:8,barThickness:26}
+    ]},
+  options:{indexAxis:'y',layout:{padding:{left:6,right:16,top:4}},scales:{x:{beginAtZero:true,grid:{color:'rgba(255,255,255,.08)'},ticks:{color:grey},title:{display:true,text:'Working days',color:grey}},y:{grid:{display:false},ticks:{color:'#cfd6dd',font:{size:13},autoSkip:false,crossAlign:'far'}}},plugins:{legend:{labels:{color:'#cfd6dd',usePointStyle:true,boxWidth:10}}}}
+});
+</script>
+</body>
+</html>
